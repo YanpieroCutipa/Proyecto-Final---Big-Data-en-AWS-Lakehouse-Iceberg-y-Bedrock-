@@ -1,0 +1,31 @@
+﻿ticket_id;created_at;channel;customer_message;status
+1;20/05/2026;web;No puedo iniciar sesión en mi cuenta;abierto
+2;20/05/2026;chat;Mi contraseña no funciona;abierto
+3;20/05/2026;email;Me cobraron dos veces;abierto
+4;20/05/2026;web;No aparece mi pago;abierto
+5;20/05/2026;chat;La aplicación se congela;abierto
+6;20/05/2026;web;Error al cargar el sistema;abierto
+7;20/05/2026;email;El soporte demora demasiado;abierto
+8;20/05/2026;web;¿Cómo actualizo mis datos?;abierto
+9;20/05/2026;chat;No recibí el correo de verificación;abierto
+10;20/05/2026;email;La página muestra un error 500;abierto
+11;20/05/2026;web;No puedo descargar mi factura;abierto
+12;20/05/2026;chat;Mi pedido aún no llega;abierto
+13;20/05/2026;email;No funciona el botón de pago;abierto
+14;20/05/2026;web;La app se cierra sola;abierto
+15;20/05/2026;chat;No puedo cambiar mi correo electrónico;abierto
+16;20/05/2026;email;El enlace de recuperación expiró;abierto
+17;20/05/2026;web;No carga mi historial de compras;abierto
+18;20/05/2026;chat;Tengo problemas para registrarme;abierto
+19;20/05/2026;email;No puedo adjuntar archivos;abierto
+20;20/05/2026;web;El sistema está muy lento;abierto
+21;20/05/2026;chat;No reconoce mi tarjeta;abierto
+22;20/05/2026;email;Se duplicó mi pedido;abierto
+23;20/05/2026;web;No puedo cerrar sesión;abierto
+24;20/05/2026;chat;La notificación no desaparece;abierto
+25;20/05/2026;email;No encuentro mi comprobante;abierto
+26;20/05/2026;web;Error al actualizar perfil;abierto
+27;20/05/2026;chat;No funciona el chat de soporte;abierto
+28;20/05/2026;email;No recibo códigos de verificación;abierto
+29;20/05/2026;web;La búsqueda no muestra resultados;abierto
+30;20/05/2026;chat;No puedo completar la compra;abierto
