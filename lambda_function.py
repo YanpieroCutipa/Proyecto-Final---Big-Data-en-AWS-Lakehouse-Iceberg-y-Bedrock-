@@ -47,16 +47,25 @@ def classify_ticket(message):
     return response_body['output']['message']['content'][0]['text']
 
 def lambda_handler(event, context):
-    try:  
-        bucket_name = 'tickets-bedrock-mayron-2026'
-        file_key = 'raw/tickets.csv'
+    print("EVENTO RECIBIDO:")
+    print(json.dumps(event))
+
+    try:
+        bucket_name = event['Records'][0]['s3']['bucket']['name']
+        file_key = event['Records'][0]['s3']['object']['key']
 
         response = s3.get_object(
             Bucket=bucket_name,
             Key=file_key
         )
 
-        content = response['Body'].read().decode('utf-8-sig')
+        file_content = response['Body'].read()
+
+        try:
+            content = file_content.decode('utf-8-sig')
+        except UnicodeDecodeError:
+            content = file_content.decode('latin-1')
+
         lines = content.splitlines()
         reader = csv.DictReader(lines, delimiter=';')
         tickets = list(reader)
@@ -79,10 +88,10 @@ def lambda_handler(event, context):
             'statusCode': 200,
             'body': json.dumps('Clasificacion completada')
         }
-    
-    except Exception as e: 
+
+    except Exception as e:
         print("ERROR:", str(e))
-        
+
         return {
             'statusCode': 500,
             'body': json.dumps(f"Error: {str(e)}")
