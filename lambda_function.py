@@ -10,6 +10,7 @@ bedrock = boto3.client(
 )
 
 def classify_ticket(message):
+
     prompt = f"""
     Clasifica el siguiente ticket de soporte.
 
@@ -44,15 +45,21 @@ def classify_ticket(message):
     )
 
     response_body = json.loads(response['body'].read())
+
     return response_body['output']['message']['content'][0]['text']
 
+
 def lambda_handler(event, context):
+
     print("EVENTO RECIBIDO:")
     print(json.dumps(event))
 
     try:
+
         bucket_name = event['Records'][0]['s3']['bucket']['name']
         file_key = event['Records'][0]['s3']['object']['key']
+
+        print(f"Archivo recibido: {file_key}")
 
         response = s3.get_object(
             Bucket=bucket_name,
@@ -68,31 +75,75 @@ def lambda_handler(event, context):
 
         lines = content.splitlines()
         reader = csv.DictReader(lines, delimiter=';')
+
         tickets = list(reader)
+
+        print(f"Tickets encontrados: {len(tickets)}")
+
         sample_tickets = tickets[:10]
 
-        print("CLASIFICACION DE TICKETS")
+        resultados = []
 
-        for ticket in sample_tickets:
+        for idx, ticket in enumerate(sample_tickets, start=1):
+
+            if 'customer_message' not in ticket:
+                print(f"Ticket {idx}: columna customer_message no encontrada")
+                continue
+
             message = ticket['customer_message']
-            result = classify_ticket(message)
+
+            if not message:
+                print(f"Ticket {idx}: mensaje vacío")
+                continue
 
             print("--------------------------------")
-            print("TICKET:")
-            print(message)
+            print(f"Procesando ticket {idx}")
 
-            print("RESULTADO:")
-            print(result)
+            result = classify_ticket(message)
+
+            resultados.append({
+                "ticket_id": idx,
+                "mensaje": message,
+                "clasificacion": result
+            })
+
+        json_resultados = json.dumps(
+            resultados,
+            ensure_ascii=False,
+            indent=4
+        )
+
+        output_key = (
+            file_key
+            .replace("raw/", "curated/")
+            .replace(".csv", "_clasificado.json")
+        )
+
+        s3.put_object(
+            Bucket=bucket_name,
+            Key=output_key,
+            Body=json_resultados,
+            ContentType='application/json'
+        )
+
+        print(f"Resultados guardados en: {output_key}")
 
         return {
-            'statusCode': 200,
-            'body': json.dumps('Clasificacion completada')
+            "statusCode": 200,
+            "body": json.dumps({
+                "mensaje": "Clasificación completada",
+                "archivo_salida": output_key,
+                "tickets_procesados": len(resultados)
+            })
         }
 
     except Exception as e:
+
         print("ERROR:", str(e))
 
         return {
-            'statusCode': 500,
-            'body': json.dumps(f"Error: {str(e)}")
+            "statusCode": 500,
+            "body": json.dumps(
+                f"Error: {str(e)}"
+            )
         }
