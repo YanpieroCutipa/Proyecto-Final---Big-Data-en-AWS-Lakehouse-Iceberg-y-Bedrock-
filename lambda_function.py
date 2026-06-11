@@ -1,6 +1,10 @@
 import json
 import boto3
 import csv
+from datetime import datetime
+
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('tickets_auditoria')
 
 s3 = boto3.client('s3')
 
@@ -126,7 +130,17 @@ def lambda_handler(event, context):
             ContentType='application/json'
         )
 
+        table.put_item(
+            Item={
+                'archivo': file_key,
+                'fecha_proceso': datetime.now().isoformat(),
+                'tickets_procesados': len(resultados),
+                'estado': 'COMPLETADO'
+            }
+        )
+
         print(f"Resultados guardados en: {output_key}")
+        print(f"Auditoría guardada en DynamoDB para archivo: {file_key}")
 
         return {
             "statusCode": 200,
