@@ -16,15 +16,22 @@ bedrock = boto3.client(
 def classify_ticket(message):
 
     prompt = f"""
-    Clasifica el siguiente ticket de soporte.
+    Clasifica el siguiente ticket.
 
     Ticket:
     "{message}"
 
-    Devuelve:
-    - categoria
-    - prioridad
-    - recomendacion
+    Responde ÚNICAMENTE en formato JSON válido.
+
+    Ejemplo:
+
+    {{
+        "categoria": "Acceso",
+        "prioridad": "Alta",
+        "recomendacion": "Restablecer contraseña"
+    }}
+
+    No agregues explicaciones ni texto adicional.
     """
 
     body = {
@@ -105,16 +112,29 @@ def lambda_handler(event, context):
 
             result = classify_ticket(message)
 
+            print("RESPUESTA BEDROCK:")
+            print(result)
+
+            result = result.strip()
+
+            if result.startswith("```json"):
+                result = result.replace("```json", "")
+                result = result.replace("```", "")
+                result = result.strip()
+
+            clasificacion_json = json.loads(result)
+
             resultados.append({
                 "ticket_id": idx,
                 "mensaje": message,
-                "clasificacion": result
+                "categoria": clasificacion_json["categoria"],
+                "prioridad": clasificacion_json["prioridad"],
+                "recomendacion": clasificacion_json["recomendacion"]
             })
 
-        json_resultados = json.dumps(
-            resultados,
-            ensure_ascii=False,
-            indent=4
+        json_resultados = "\n".join(
+            json.dumps(item, ensure_ascii=False)
+            for item in resultados
         )
 
         output_key = (
